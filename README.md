@@ -1,4 +1,4 @@
-# AI Solutions - Chatbot
+# Xtract and Chat 
 
 A simple, full-stack web application featuring:
 

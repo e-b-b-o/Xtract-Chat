@@ -77,7 +77,7 @@ def query_rag(query_text, n_results=3):
 
 # Renamed to make it importable if needed, though simple function is fine
 def get_gemini_response(query_text, context_text, history=None):
-    model = 'models/gemini-2.5-pro' 
+    model = 'models/gemini-2.5-flash' 
     
     # Format history for prompt
     history_text = ""
@@ -126,13 +126,13 @@ def get_gemini_response(query_text, context_text, history=None):
             # Let's use the actual streaming if possible.
             try:
                 # Based on the user's requirement for "smooth streaming", I'll try to find the streaming method.
-                for chunk in client.models.generate_content_stream(model=model, contents=prompt):
+                for chunk in client.models.generate_content_stream(model='models/gemini-2.5-flash', contents=prompt):
                    if chunk.text:
                        yield chunk.text
             except Exception as e:
                 # Fallback to non-streaming if method doesn't exist or fails
                 print(f"Streaming failed, falling back to non-streaming: {e}")
-                res = client.models.generate_content(model=model, contents=prompt)
+                res = client.models.generate_content(model='models/gemini-2.5-flash', contents=prompt)
                 yield res.text
 
         return generate()
