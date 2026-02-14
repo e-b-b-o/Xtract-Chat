@@ -61,6 +61,16 @@ const deleteDocument = async (id) => {
     return response.data;
 };
 
+const getUsers = async () => {
+    const response = await api.get('/admin/users');
+    return response.data;
+};
+
+const deleteUser = async (id) => {
+    const response = await api.delete(`/admin/users/${id}`);
+    return response.data;
+};
+
 const chatService = {
     uploadDocument,
     scrapeWebsite,
@@ -68,7 +78,9 @@ const chatService = {
     getHistory: getChatHistory,
     getChatHistory,
     askQuestion,
-    deleteDocument
+    deleteDocument,
+    getUsers,
+    deleteUser
 };
 
 export default chatService;

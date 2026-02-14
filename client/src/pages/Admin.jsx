@@ -9,7 +9,8 @@ import {
   CheckCircle, 
   ArrowLeft,
   Loader2,
-  Database
+  Database,
+  Users
 } from 'lucide-react';
 import chatService from '../services/chatService';
 
@@ -138,6 +139,7 @@ const Admin = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [users, setUsers] = useState([]);
 
     /* progress overlay state */
     const [progress, setProgress] = useState(0);
@@ -149,6 +151,7 @@ const Admin = () => {
 
     useEffect(() => {
         fetchDocuments();
+        fetchUsers();
         return () => clearInterval(intervalRef.current);
     }, []);
 
@@ -158,6 +161,26 @@ const Admin = () => {
             setDocuments(data);
         } catch (err) {
             setError('Failed to fetch documents');
+        }
+    };
+
+    const fetchUsers = async () => {
+        try {
+            const data = await chatService.getUsers();
+            setUsers(data);
+        } catch (err) {
+            console.error('Failed to fetch users:', err);
+        }
+    };
+
+    const handleDeleteUser = async (id, username) => {
+        if (!window.confirm(`Delete user "${username}"? This will permanently remove all their chats and data.`)) return;
+        try {
+            await chatService.deleteUser(id);
+            setSuccess(`User "${username}" and all related data deleted`);
+            setUsers(prev => prev.filter(u => u._id !== id));
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete user');
         }
     };
 
@@ -362,6 +385,57 @@ const Admin = () => {
                                                     onClick={() => handleDelete(doc._id)} 
                                                     style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0.5rem' }}
                                                     title="Delete document"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
+                </div>
+
+                {/* User Management Section */}
+                <div className="card" style={{ marginTop: '2rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+                      <Users size={20} />
+                      <h2 style={{ fontSize: '1.1rem', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.05em' }}>User Management</h2>
+                    </div>
+                    
+                    {users.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-secondary)', border: '1px dashed var(--border)' }}>
+                            No registered users found.
+                        </div>
+                    ) : (
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                <thead>
+                                    <tr style={{ borderBottom: '2px solid var(--border)' }}>
+                                        <th style={{ padding: '1rem', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Username</th>
+                                        <th style={{ padding: '1rem', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Email</th>
+                                        <th style={{ padding: '1rem', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Joined</th>
+                                        <th style={{ padding: '1rem', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'right' }}>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {users.map((user) => (
+                                        <tr key={user._id} style={{ borderBottom: '1px solid var(--border)', transition: 'background 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.02)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                                            <td style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: '600' }}>
+                                                {user.username}
+                                            </td>
+                                            <td style={{ padding: '1rem', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+                                                {user.email}
+                                            </td>
+                                            <td style={{ padding: '1rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                                                {new Date(user.createdAt).toLocaleDateString()}
+                                            </td>
+                                            <td style={{ padding: '1rem', textAlign: 'right' }}>
+                                                <button 
+                                                    onClick={() => handleDeleteUser(user._id, user.username)} 
+                                                    style={{ background: 'none', border: 'none', color: '#ff4444', cursor: 'pointer', padding: '0.5rem' }}
+                                                    title={`Delete ${user.username}`}
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>

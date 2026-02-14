@@ -197,4 +197,66 @@ router.delete('/documents/:id', protect, admin, async (req, res) => {
     }
 });
 
+// ═══════════════════  USER MANAGEMENT  ═══════════════════
+
+const User = require('../models/User.js');
+const Chat = require('../models/Chat.js');
+
+// @desc    Get all non-admin users
+// @route   GET /api/admin/users
+// @access  Private/Admin
+router.get('/users', protect, admin, async (req, res) => {
+    try {
+        const users = await User.find({ isAdmin: false }).select('-password');
+        res.json(users);
+    } catch (error) {
+        console.error('Get Users Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
+// @desc    Delete user and all related data
+// @route   DELETE /api/admin/users/:id
+// @access  Private/Admin
+router.delete('/users/:id', protect, admin, async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        // Prevent admin from deleting themselves
+        if (userId === req.user._id.toString()) {
+            return res.status(400).json({ message: 'Cannot delete your own account' });
+        }
+
+        const userToDelete = await User.findById(userId);
+        if (!userToDelete) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Prevent deleting other admins
+        if (userToDelete.isAdmin) {
+            return res.status(400).json({ message: 'Cannot delete an admin user' });
+        }
+
+        // 1. Delete all chat history for this user
+        await Chat.deleteMany({ user: userId });
+
+        // 2. Delete all documents uploaded by this user (and their files)
+        const userDocs = await Document.find({ uploadedBy: userId });
+        for (const doc of userDocs) {
+            if (doc.type === 'file' && fs.existsSync(doc.path)) {
+                fs.unlinkSync(doc.path);
+            }
+        }
+        await Document.deleteMany({ uploadedBy: userId });
+
+        // 3. Delete the user record
+        await User.deleteOne({ _id: userId });
+
+        res.json({ message: 'User and all related data deleted successfully' });
+    } catch (error) {
+        console.error('Delete User Error:', error);
+        res.status(500).json({ message: 'Server Error' });
+    }
+});
+
 module.exports = router;
