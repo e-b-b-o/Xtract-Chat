@@ -46,6 +46,7 @@ const Chatbot = () => {
         } catch (error) {
             console.error('Failed to load chat history', error);
         }
+        
     };
 
     const handleSend = async (e) => {

@@ -14,7 +14,7 @@ const Register = () => {
         try {
             await authService.register({ username, email, password });
             navigate('/');
-            // Reload to ensuring auth state is picked up immediately
+            
             window.location.reload(); 
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');

@@ -13,7 +13,7 @@ const Login = () => {
         try {
             await authService.login({ email, password });
             navigate('/');
-            window.location.reload(); // Refresh to update auth state
+            window.location.reload(); 
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
         }

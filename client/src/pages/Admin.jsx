@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import chatService from '../services/chatService';
 
-/* ── Processing stages shown during upload / scrape ── */
+/* Processing stages shown during upload / scrape */
 const FILE_STAGES = [
   { at: 0,  label: 'Uploading document…' },
   { at: 15, label: 'Extracting text content…' },
@@ -33,7 +33,7 @@ const URL_STAGES = [
   { at: 90, label: 'Finalizing knowledge base…' },
 ];
 
-/* ── Circular progress ring (SVG) ── */
+/*  Circular progress ring (SVG)  */
 const ProgressRing = ({ progress }) => {
   const radius = 80;
   const stroke = 6;
@@ -88,7 +88,7 @@ const ProcessingOverlay = ({ progress, stage, visible }) => {
             position: 'absolute', inset: 0,
             display: 'flex', flexDirection: 'column',
             alignItems: 'center', justifyContent: 'center',
-            transform: 'rotate(0deg)' /* reset parent SVG rotation context */
+            transform: 'rotate(0deg)' 
           }}>
             {done
               ? <CheckCircle size={36} style={{ color: '#10b981' }} />
@@ -130,7 +130,7 @@ const ProcessingOverlay = ({ progress, stage, visible }) => {
   );
 };
 
-/* ═══════════════════  ADMIN COMPONENT  ═══════════════════ */
+/*  ADMIN COMPONENT  */
 
 const Admin = () => {
     const [file, setFile] = useState(null);
@@ -184,7 +184,7 @@ const Admin = () => {
         }
     };
 
-    /* ── Simulated progress ticker ── */
+    /*  Simulated progress ticker  */
     const startProgress = useCallback((stages) => {
         setProgress(0);
         setStage(stages[0].label);
@@ -215,7 +215,7 @@ const Admin = () => {
         setShowOverlay(false);
     }, []);
 
-    /* ── Handlers ── */
+    /*  Handlers  */
     const handleFileUpload = async (e) => {
         e.preventDefault();
         if (!file) return;
@@ -271,7 +271,7 @@ const Admin = () => {
 
     return (
         <div style={{ backgroundColor: 'var(--background)', minHeight: '100vh', padding: '2rem' }}>
-            {/* ── Processing Overlay ── */}
+            {/*  Processing Overlay  */}
             <ProcessingOverlay progress={progress} stage={stage} visible={showOverlay} />
 
             <div className="container" style={{ maxWidth: '1000px' }}>
